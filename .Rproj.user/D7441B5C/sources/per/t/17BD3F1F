@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1558844305433.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1110314077",
+    "id" : "17BD3F1F",
+    "lastKnownWriteTime" : 1558853200,
+    "last_content_update" : 1558853200886,
+    "path" : "~/Documents/inventarios/argentina/fuel_eval/BUS_01_input.R",
+    "project_path" : "fuel_eval/BUS_01_input.R",
+    "properties" : {
+        "cursorPosition" : "36,0",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

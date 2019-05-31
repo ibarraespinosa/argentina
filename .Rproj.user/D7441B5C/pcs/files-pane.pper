@@ -1,0 +1,9 @@
+{
+    "path" : "~/Documents/inventarios/argentina/fuel_eval",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}

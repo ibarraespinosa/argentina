@@ -1,0 +1,130 @@
+library(vein)
+library(colorout)
+# try 1 ####
+knafta <-  matrix(rep(1, 24))
+koil <- matrix(rep(1, 24))
+kcn <-  matrix(rep(0, 24))
+source("veh/traffic.R")
+vehi <- data.frame(iter0 = c(
+  "PC_G_1400: 1959 MIL",
+  "PC_G_1400_2000: 4978 MIL",
+  "PC_G_2000: 653 MIL",
+  "PC_D_1400: 359 MIL",
+  "PC_D_1400_2000: 912 MIL",
+  "PC_D_2000: 120 MIL",
+  "PC_CNG: 0 MIL",
+  "LCV_G: 1881 MIL",
+  "LCV_D: 345 MIL",
+  "LCV_CNG: 0 MIL",
+  "RT_D_12_14t: 355 MIL",
+  "AT_D_14_20: 325 MIL",
+  "BUS_Urban_D_15_18: 76 MIL",
+  "BUS_Coach_D_15_18: 8 MIL",
+  "MC_G_50: 26 MIL",
+  "MC_G_50_250: 2432 MIL",
+  "MC_G_250_750: 159 MIL"
+))
+sessionInfo()
+inputs <- list.files(path = 'fuel_eval', pattern = 'input.R',
+                     recursive = TRUE, full.names = TRUE)
+
+
+
+for (i in 1:length(inputs)){
+  print(inputs[i])
+  source(inputs[i], echo = T)
+}
+
+df <- emis_merge(pol = "FC", what = ".rds", streets = F, 
+                 path = "emi", under = "none", 
+                 as_list = T)
+( kk <- substr(x = names(df), start = 11, stop = 50)  )
+(kk <- gsub(pattern = "/", replacement = "", kk))
+(kk <- gsub(pattern = ".rds", replacement = "", kk))
+names(df) <- kk
+fname <- function(x){
+  ( kk <- substr(x = x, start = 11, stop = 50)  )
+  (kk <- gsub(pattern = "/", replacement = "", kk))
+  (kk <- gsub(pattern = ".rds", replacement = "", kk))
+  return(kk)
+}
+d_oil = 0.845 # kg/ly
+d_nafta = 0.735 # kg/ly
+d_cng = 0.5 # kg/ly
+a <- grep(pattern = "_G", names(df))
+G <- rowSums(sapply(1:length(a), function(i) rowSums(df[[i]]) ), na.rm = T)
+a <- grep(pattern = "_D", names(df))
+D <- rowSums(sapply(1:length(a), function(i) rowSums(df[[i]])), na.rm = T)
+a <- grep(pattern = "_CNG", names(df))
+CNG <- rowSums(sapply(1:length(a), function(i) rowSums(df[[i]])), na.rm = T)
+dff <- data.frame(G = G/(d_nafta*1000*1000), #m3
+                  D = D/(d_oil*1000*1000), #m3
+                  CNG = CNG/(d_cng*1000*1000)) #m3
+net <- readRDS("network/net.rds")
+names(net)
+dff$G/net$gas_oil
+cbind(dff$G, net$nafta, dff$G/net$nafta)
+cbind(dff$D, net$gas_oil, dff$D/net$gas_oil)
+cbind(dff$CNG, net$gn, dff$CNG/net$gn)
+
+# try 2 ####
+knafta <-  matrix(1/(dff$G/net$nafta))
+koil <- matrix(1/(dff$D/net$gas_oil))
+kcn <-  matrix(rep(0, 24))
+
+source("veh/traffic.R")
+vehi$iter1 = c(
+  "PC_G_1400: 2251 MIL",
+  "PC_G_1400_2000: 5721 MIL",
+  "PC_G_2000: 750 MIL",
+  "PC_D_1400: 508 MIL",
+  "PC_D_1400_2000: 1290 MIL",
+  "PC_D_2000: 169 MIL",
+  "PC_CNG: 0 MIL",
+  "LCV_G: 2196 MIL",
+  "LCV_D: 505 MIL",
+  "LCV_CNG: 0 MIL",
+  "RT_D_12_14: 516 MIL",
+  "AT_D_14_20: 472 MIL",
+  "BUS_Urban_D_15_18: 102 MIL",
+  "BUS_Coach_D_15_18: 11 MIL",
+  "MC_G_50: 30 MIL",
+  "MC_G_50_250: 2789 MIL",
+  "MC_G_250_750: 182 MIL"
+  )
+
+
+inputs <- list.files(path = 'fuel_eval', pattern = 'input.R',
+                     recursive = TRUE, full.names = TRUE)
+for (i in 1:length(inputs)){
+  print(inputs[i])
+  source(inputs[i], echo = T)
+}
+
+df <- emis_merge(pol = "FC", what = ".rds", streets = F, 
+                 path = "emi", under = "none", 
+                 as_list = T)
+( kk <- substr(x = names(df), start = 11, stop = 50)  )
+(kk <- gsub(pattern = "/", replacement = "", kk))
+(kk <- gsub(pattern = ".rds", replacement = "", kk))
+names(df) <- kk
+length(df)
+d_oil = 0.845 # kg/ly
+d_nafta = 0.735 # kg/ly
+d_cng = 0.5 # kg/ly
+a <- grep(pattern = "_G", names(df))
+G <- rowSums(sapply(1:length(a), 
+                    function(i) rowSums(df[[i]])), na.rm = T)
+a <- grep(pattern = "_D", names(df))
+D <- rowSums(sapply(1:length(a), function(i) rowSums(df[[i]])), na.rm = T)
+a <- grep(pattern = "_CNG", names(df))
+CNG <- rowSums(sapply(1:length(a), function(i) rowSums(df[[i]])), na.rm = T)
+dff <- data.frame(G = G/(d_nafta*1000*1000), #m3
+                  D = D/(d_oil*1000*1000), #m3
+                  CNG = CNG/(d_cng*1000*1000)) #m3
+
+net <- readRDS("network/net.rds")
+cbind(dff$G, net$nafta, dff$G/net$nafta)
+cbind(dff$D, net$gas_oil, dff$D/net$gas_oil)
+cbind(dff$CNG, net$gn, dff$CNG/net$gn)
+

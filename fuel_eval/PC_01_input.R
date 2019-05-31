@@ -1,0 +1,52 @@
+# Network 
+net <- readRDS("network/net.rds")
+# Vehicles
+veh <- readRDS('veh/PC_G_1400.rds') 
+# Profiles
+# Mileage, Check name of categories with names(fkm)
+data(fkm)
+lkm <- units::set_units(fkm[['KM_PC_E25']](1:ncol(veh)), km)
+# Euro
+euro <- c(rep("V", length(2017:2013)),
+                rep("IV", length(2012:2009)),
+                rep("III", length(2008:2007)),
+                rep("II", length(2006:2004)),
+                rep("I", length(2003:1994)),
+                rep("PRE", length(1993:1978))
+)
+
+# Sulphur
+sulphur <- 50 # ppm
+
+# Input and Output
+directory <- "PC_01"
+vfuel <- 'G' 
+vsize <- '1400'
+vname <-  "PC_G_1400" 
+type_emi <- "Hot"
+params = list(province = net$nombre,
+              vname_fuel = vname,
+              vname = vname,
+              vfuel = vfuel,
+              vsize = vsize)
+
+#  pol ####
+pol <- c("FC")   
+for(j in 1:length(pol)){
+lef <- ef_ldv_speed(v = "PC", 
+                    t = "4S", 
+                    cc = "<=1400", 
+                    f = "G",
+                    eu = euro, 
+                    p = pol[j], 
+                    speed = Speed(34)) 
+  array_x <- emis_hot_td(veh = veh, 
+                         lkm = lkm, 
+                         ef = lef, 
+                         params = c(params, 
+                                    pollutant = pol[j], 
+                                    type_emi = type_emi))
+  saveRDS(array_x, 
+          file = paste0('emi/', vname,  '.rds'))
+  rm(array_x, lef)
+}

@@ -1,0 +1,38 @@
+# Network 
+# Vehicles
+veh <- readRDS('veh/BUS_Urban_D_15_18.rds') 
+# Profiles
+# Mileage, Check name of categories with names(fkm)
+data(fkm)
+pckm <- units::set_units(fkm$KM_BUS_B5(1:ncol(veh)), km)
+# Euro
+EURO_HDV <- c(rep("IV", length(2017:2013)),
+              rep("III", length(2012:2006)),
+              rep("II", length(2005:1998)),
+              rep("I", length(1997:1995)),
+              rep("PRE", length(1994:1978))
+)
+
+# Sulphur
+sulphur <- 50 # ppm
+
+
+# Input and Output
+
+directory <- "BUS_01"
+vfuel <- '_D' 
+vsize <- '15_18t' # It can be small/big/<=1400, one word
+vname <-  "BUS_Urban_15_18" 
+
+
+#  pol ####
+pol <- c("FC")  
+for(j in 1:length(pol)){
+  lef <- EmissionFactors(unlist(lapply(1:ncol(veh), function(i) {
+    ef_hdv_speed(v = "Ubus",t = "Std", g = ">15 & <=18",
+                 eu = EURO_HDV[i], p = pol[j],x = sulphur)(34) 
+  })))
+  array_x <- emis(veh = veh, lkm = pckm, ef = lef)
+  saveRDS(array_x, file = paste0('emis/', vname,  '.rds'))
+  rm(array_x, lef)
+}
